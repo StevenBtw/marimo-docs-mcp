@@ -31,24 +31,77 @@ interface ApiDoc {
 
 class MarimoDocs {
   private server: Server;
-  private baseUrl: string = 'https://docs.marimo.io/api/inputs';
+  private baseUrl: string = 'https://docs.marimo.io/api';
   private cache: Record<string, ApiDoc> = {};
   private lastFetch: Date | null = null;
   private cacheDuration: number = 1000 * 60 * 60; // 1 hour
   private endpoints: Record<string, string> = {
-    'slider': '/range_slider/',
-    'button': '/button/',
-    'checkbox': '/checkbox/',
-    'dropdown': '/dropdown/',
-    'text': '/text/',
-    'number': '/number/',
-    'array': '/array/',
-    'multiselect': '/multiselect/',
-    'radio': '/radio/',
-    'switch': '/switch/',
-    'date': '/date/',
-    'time': '/time/',
-    'file': '/file/',
+    // Inputs
+    'array': '/inputs/array/',
+    'anywidget': '/inputs/anywidget/',
+    'batch': '/inputs/batch/',
+    'button': '/inputs/button/',
+    'chat': '/inputs/chat/',
+    'checkbox': '/inputs/checkbox/',
+    'code_editor': '/inputs/code_editor/',
+    'data_explorer': '/inputs/data_explorer/',
+    'dataframe': '/inputs/dataframe/',
+    'dates': '/inputs/dates/',
+    'dictionary': '/inputs/dictionary/',
+    'dropdown': '/inputs/dropdown/',
+    'file': '/inputs/file/',
+    'file_browser': '/inputs/file_browser/',
+    'form': '/inputs/form/',
+    'microphone': '/inputs/microphone/',
+    'multiselect': '/inputs/multiselect/',
+    'nav_menu': '/inputs/nav_menu/',
+    'number': '/inputs/number/',
+    'radio': '/inputs/radio/',
+    'range_slider': '/inputs/range_slider/',
+    'refresh': '/inputs/refresh/',
+    'run_button': '/inputs/run_button/',
+    'slider': '/inputs/slider/',
+    'switch': '/inputs/switch/',
+    'table': '/inputs/table/',
+    'tabs': '/inputs/tabs/',
+    'text': '/inputs/text/',
+    'text_area': '/inputs/text_area/',
+
+    // Layouts
+    'accordion': '/layouts/accordion/',
+    'callout': '/layouts/callout/',
+    'carousel': '/layouts/carousel/',
+    'justify': '/layouts/justify/',
+    'lazy': '/layouts/lazy/',
+    'plain': '/layouts/plain/',
+    'routes': '/layouts/routes/',
+    'sidebar': '/layouts/sidebar/',
+    'stacks': '/layouts/stacks/',
+    'tree': '/layouts/tree/',
+
+    // Media
+    'audio': '/media/audio/',
+    'download': '/media/download/',
+    'image': '/media/image/',
+    'pdf': '/media/pdf/',
+    'plain_text': '/media/plain_text/',
+    'video': '/media/video/',
+
+    // Other sections
+    'markdown': '/markdown/',
+    'control_flow': '/control_flow/',
+    'plotting': '/plotting/',
+    'status': '/status/',
+    'outputs': '/outputs/',
+    'diagrams': '/diagrams/',
+    'html': '/html/',
+    'query_params': '/query_params/',
+    'cli_args': '/cli_args/',
+    'caching': '/caching/',
+    'state': '/state/',
+    'app': '/app/',
+    'cell': '/cell/',
+    'miscellaneous': '/miscellaneous/'
   };
 
   constructor() {
@@ -140,15 +193,34 @@ class MarimoDocs {
   private async fetchDoc(element: string): Promise<ApiDoc> {
     const endpoint = this.endpoints[element as keyof typeof this.endpoints];
     if (!endpoint) {
+      // Group elements by their section
+      const elementsBySection: Record<string, string[]> = {};
+      Object.entries(this.endpoints).forEach(([element, path]) => {
+        const section = path.split('/')[1] || 'other';
+        if (!elementsBySection[section]) {
+          elementsBySection[section] = [];
+        }
+        elementsBySection[section].push(element);
+      });
+
+      // Format the error message with sections
+      const availableElements = Object.entries(elementsBySection)
+        .map(([section, elements]) =>
+          `${section}: ${elements.join(', ')}`
+        )
+        .join('\n');
+
       throw new McpError(
         ErrorCode.InvalidParams,
-        `Unknown element: ${element}. Available elements: ${Object.keys(this.endpoints).join(', ')}`
+        `Unknown element: ${element}\n\nAvailable elements by section:\n${availableElements}`
       );
     }
 
     try {
       console.error(`Fetching documentation for ${element}...`);
-      const response = await axios.get(`${this.baseUrl}${endpoint}`, {
+      // Remove any duplicate slashes in the URL
+      const url = `${this.baseUrl}${endpoint}`.replace(/([^:]\/)\/+/g, "$1");
+      const response = await axios.get(url, {
         headers: {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
