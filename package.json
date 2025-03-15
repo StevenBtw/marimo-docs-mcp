@@ -1,0 +1,22 @@
+{
+  "name": "marimo-docs",
+  "version": "0.1.0",
+  "description": "MCP server for fetching and parsing Marimo documentation",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc && chmod +x build/index.js",
+    "watch": "tsc -w",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.2.0",
+    "axios": "^1.6.7",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/cheerio": "^0.22.35",
+    "typescript": "^5.3.3"
+  }
+}
