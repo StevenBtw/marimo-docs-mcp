@@ -1,6 +1,6 @@
-# marimo-docs MCP Server
+# Marimo Documenation MCP Server
 
-A Model Context Protocol server that provides programmatic access to the [Marimo Documentation](https://docs.marimo.io).
+A Model Context Protocol (MCP) server that provides access to the [Marimo Documentation](https://docs.marimo.io).
 
 This TypeScript-based MCP server lets you fetch and search through Marimo's API documentation, providing structured access to components, interfaces, and examples across all documentation sections.
 
